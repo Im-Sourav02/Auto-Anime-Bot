@@ -154,96 +154,72 @@ def normalize_genres(genres: list) -> list:
     return normalized
 
 class AniLister:
-    def __init__(self, anime_name: str, year: int) -> None:
-        self.__api = "https://graphql.anilist.co"
+    def __init__(self, anime_name: str, year: int = None) -> None:
         self.__ani_name = anime_name
-        self.__ani_year = year
-        self.__vars = {'search': self.__ani_name, 'seasonYear': self.__ani_year}
-
-    def __update_vars(self, year: bool = True) -> None:
-        if year:
-            self.__ani_year -= 1
-            self.__vars['seasonYear'] = self.__ani_year
-        else:
-            self.__vars = {'search': self.__ani_name}
-
-    async def post_data(self):
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-        }
-        async with ClientSession(headers=headers) as sess:
-            async with sess.post(self.__api, json={'query': ANIME_GRAPHQL_QUERY, 'variables': self.__vars}) as resp:
-                if resp.status == 403:
-                    try:
-                        resp_json = await resp.json()
-                    except:
-                        resp_json = {}
-                    return (resp.status, resp_json, resp.headers)
-                return (resp.status, await resp.json(), resp.headers)
+        self.__api = "https://api.jikan.moe/v4/anime"
 
     async def get_anidata(self):
-        cache_key = f"{self.__ani_name}:{self.__ani_year}"
+        cache_key = f"jikan:{self.__ani_name}"
         if cache_key in ani_cache:
             return ani_cache[cache_key]
-        res_code, resp_json, res_heads = await self.post_data()
-        while res_code == 404 and self.__ani_year > 2020:
-            self.__update_vars()
-            await rep.report(f"AniList Query Name: {self.__ani_name}, Retrying with {self.__ani_year}", "warning", log=False)
-            res_code, resp_json, res_heads = await self.post_data()
-        if res_code == 404:
-            self.__update_vars(year=False)
-            res_code, resp_json, res_heads = await self.post_data()
-        if res_code == 200:
-            data = resp_json.get('data', {}).get('Media', {}) or {}
-            ani_cache[cache_key] = data
-            return data
-        elif res_code == 429:
-            retry_after = int(res_heads.get('Retry-After', 10))
-            await asleep(retry_after * 1.5)
-            return await self.get_anidata()
-        elif res_code in [500, 501, 502]:
-            await asleep(5)
-            return await self.get_anidata()
-        await rep.report(f"AniList API Error: {res_code}", "error", log=False)
+
+        async with ClientSession() as sess:
+            # We search Jikan API. 
+            async with sess.get(self.__api, params={"q": self.__ani_name, "limit": 1}) as resp:
+                if resp.status == 429:
+                    await asleep(2)
+                    return await self.get_anidata()
+                if resp.status == 200:
+                    data = await resp.json()
+                    results = data.get("data", [])
+                    if results:
+                        anime = results[0]
+                        mal_id = anime.get("mal_id")
+                        
+                        # Get AniList ID from MALSync to preserve DB compatibility
+                        anilist_id = mal_id
+                        try:
+                            async with sess.get(f"https://api.malsync.moe/mal/anime/{mal_id}") as sync_resp:
+                                if sync_resp.status == 200:
+                                    sync_data = await sync_resp.json()
+                                    anilist_id = sync_data.get("AniListId") or mal_id
+                        except:
+                            pass
+
+                        score = anime.get("score")
+                        mapped = {
+                            "id": anilist_id,
+                            "idMal": mal_id,
+                            "title": {
+                                "english": anime.get("title_english"),
+                                "romaji": anime.get("title"),
+                                "native": anime.get("title_japanese")
+                            },
+                            "format": anime.get("type"),
+                            "status": anime.get("status"),
+                            "description": anime.get("synopsis"),
+                            "episodes": anime.get("episodes"),
+                            "averageScore": int(score * 10) if score else None,
+                            "genres": [g.get("name") for g in anime.get("genres", [])] if anime.get("genres") else [],
+                            "coverImage": {"large": anime.get("images", {}).get("jpg", {}).get("large_image_url")}
+                        }
+                        
+                        # Map dates
+                        aired = anime.get("aired", {})
+                        prop = aired.get("prop", {}) if aired else {}
+                        from_date = prop.get("from")
+                        if from_date and isinstance(from_date, dict):
+                            mapped["startDate"] = {"year": from_date.get("year"), "month": from_date.get("month"), "day": from_date.get("day")}
+                        to_date = prop.get("to")
+                        if to_date and isinstance(to_date, dict):
+                            mapped["endDate"] = {"year": to_date.get("year"), "month": to_date.get("month"), "day": to_date.get("day")}
+                        
+                        ani_cache[cache_key] = mapped
+                        return mapped
         return {}
 
     @handle_logs
-    async def _parse_anilist_data(self, data):
-        if not data or not data.get("data", {}).get("Media"):
-            return {}
-        anime = data["data"]["Media"]
-        genres = normalize_genres(anime.get("genres", []))
-        return {
-            "id": anime.get("id"),
-            "idMal": anime.get("idMal"),
-            "title": anime.get("title", {}),
-            "status": anime.get("status", "").replace("_", " ").title(),
-            "description": anime.get("description"),
-            "startDate": anime.get("startDate", {}),
-            "endDate": anime.get("endDate", {}),
-            "episodes": anime.get("episodes"),
-            "genres": genres,
-            "averageScore": anime.get("averageScore"),
-            "coverImage": anime.get("coverImage", {})
-        }
-
-    @handle_logs
     async def get_anilist_id(self, mal_id: int = None, name: str = None, year: int = None):
-        if mal_id:
-            variables = {'idMal': mal_id}
-        else:
-            variables = {'search': name, 'seasonYear': year} if year else {'search': name}
-        res_code, resp_json, res_heads = await self.post_data()
-        if res_code == 200 and resp_json.get('data', {}).get('Media'):
-            return resp_json['data']['Media']['id']
-        elif res_code == 429:
-            f_timer = int(res_heads.get('Retry-After', 10))
-            await rep.report(f"AniList ID Fetch Rate Limit: Sleeping for {f_timer}s", "error")
-            await asleep(f_timer)
-            return await self.get_anilist_id(mal_id, name, year)
-        await rep.report(f"Failed to fetch AniList ID for {name or mal_id}", "error")
         return None
 
 class TextEditor:
@@ -289,6 +265,9 @@ class TextEditor:
 
     @handle_logs
     async def get_poster(self):
+        cover = self.adata.get("coverImage", {}).get("large")
+        if cover:
+            return cover
         anime_id = self.adata.get("id")
         if anime_id and str(anime_id).isdigit():
             return f"https://img.anili.st/media/{anime_id}"
