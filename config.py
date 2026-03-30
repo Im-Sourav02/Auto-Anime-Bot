@@ -8,11 +8,11 @@ load_dotenv()
 LOGS = logging.getLogger(__name__)
 
 class Var:
-    API_ID = getenv("21223629")
-    API_HASH = getenv("920eaaf96c0ed560371add171ff0e573")
-    BOT_TOKEN = getenv("8657589634:AAGgsR5KBzc1iadCy5h-268cYGslI87JMGU")
-    DB_URI = getenv("mongodb+srv://souravagarwal14092007:szXRs8g7fErCnn4@cluster0.xlsbf3o.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
-    DB_NAME = getenv("Auto-Anime")
+    API_ID = getenv("API_ID", "21223629")
+    API_HASH = getenv("API_HASH", "920eaaf96c0ed560371add171ff0e573")
+    BOT_TOKEN = getenv("BOT_TOKEN", "8657589634:AAGgsR5KBzc1iadCy5h-268cYGslI87JMGU")
+    DB_URI = getenv("DB_URI", "mongodb+srv://souravagarwal14092007:szXRs8g7fErCnn4@cluster0.xlsbf3o.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    DB_NAME = getenv("DB_NAME", "Auto-Anime")
     BAN_SUPPORT = getenv("BAN_SUPPORT", "https://t.me/Im_Sukuna02")
     FSUB_LINK_EXPIRY = int(getenv("FSUB_LINK_EXPIRY", "120"))
     CHANNEL_ID = int(getenv("CHANNEL_ID", "-1003822482934"))
@@ -29,7 +29,7 @@ class Var:
 
     RSS_ITEMS = getenv("RSS_ITEMS", "").split()
     SEND_SCHEDULE = getenv("SEND_SCHEDULE", "True").lower() == "true"
-    BRAND_UNAME = getenv("BRAND_UNAME", "@cantarellabots")
+    BRAND_UNAME = getenv("BRAND_UNAME", "@AnimeInfinix")
 
     FFCODE_1080 = getenv("FFCODE_1080")
     FFCODE_720 = getenv("FFCODE_720")
@@ -40,7 +40,7 @@ class Var:
 
     DISABLE_CHANNEL_BUTTON = getenv("DISABLE_CHANNEL_BUTTON", False) == 'True'
     AS_DOC = getenv("AS_DOC", "True").lower() == "true"
-    THUMB = getenv("THUMB")
+    THUMB = getenv("THUMB", "https://i.ibb.co/LDPMX7Fg/x.png")
     START_PIC = getenv("START_PIC","https://i.ibb.co/LDPMX7Fg/x.png")
     FORCE_PIC = getenv("FORCE_PIC", "https://i.ibb.co/LDPMX7Fg/x.png")
 
