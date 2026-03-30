@@ -257,8 +257,7 @@ class TextEditor:
             if not ani_name or ani_name in cache_names:
                 continue
             cache_names.add(ani_name)
-            self.anilister._AniLister__ani_name = ani_name
-            self.anilister._AniLister__vars['search'] = ani_name
+            self.anilister = AniLister(ani_name, datetime.now().year)
             self.adata = await self.anilister.get_anidata()
             if self.adata:
                 break  
