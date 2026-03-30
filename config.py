@@ -8,24 +8,24 @@ load_dotenv()
 LOGS = logging.getLogger(__name__)
 
 class Var:
-    API_ID = getenv("API_ID")
-    API_HASH = getenv("API_HASH")
-    BOT_TOKEN = getenv("BOT_TOKEN")
-    DB_URI = getenv("DB_URI")
-    DB_NAME = getenv("DB_NAME")
-    BAN_SUPPORT = getenv("BAN_SUPPORT", "https://t.me/about_zani")
+    API_ID = getenv("21223629")
+    API_HASH = getenv("920eaaf96c0ed560371add171ff0e573")
+    BOT_TOKEN = getenv("8657589634:AAGgsR5KBzc1iadCy5h-268cYGslI87JMGU")
+    DB_URI = getenv("mongodb+srv://souravagarwal14092007:szXRs8g7fErCnn4@cluster0.xlsbf3o.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    DB_NAME = getenv("Auto-Anime")
+    BAN_SUPPORT = getenv("BAN_SUPPORT", "https://t.me/Im_Sukuna02")
     FSUB_LINK_EXPIRY = int(getenv("FSUB_LINK_EXPIRY", "120"))
-    CHANNEL_ID = int(getenv("CHANNEL_ID", "0"))
-    MHCHANNEL_URL = getenv("MHCHANNEL_URL", "https://t.me/+t0weAQsq_-1lYmJl")
+    CHANNEL_ID = int(getenv("CHANNEL_ID", "-1003822482934"))
+    MHCHANNEL_URL = getenv("MHCHANNEL_URL", "https://t.me/+YVvk6nUKVYcwYzBl")
     ANIME = getenv("ANIME", "Is It Wr2131ong to Try to Pi123ck Up Girls in a Dungeon?")
-    CUSTOM_BANNER = getenv("CUSTOM_BANNER", "https://ibb.co/5xjBCXKp")
+    CUSTOM_BANNER = getenv("CUSTOM_BANNER", "https://i.ibb.co/LDPMX7Fg/x.png")
 
-    PROTECT_CONTENT = True if getenv('PROTECT_CONTENT', "False") == "True" else False 
-    BACKUP_CHANNEL = int(getenv("BACKUP_CHANNEL", "-1002876087585"))
-    LOG_CHANNEL = int(getenv("LOG_CHANNEL", "-1003174074383"))
-    MAIN_CHANNEL = int(getenv("MAIN_CHANNEL", "-1002812370717"))
-    FILE_STORE = int(getenv("FILE_STORE", "-1002334590710"))
-    ADMINS = list(map(int, getenv("ADMINS", "5756495153").split()))
+    PROTECT_CONTENT = True if getenv('PROTECT_CONTENT', "True") == "True" else False 
+    BACKUP_CHANNEL = int(getenv("BACKUP_CHANNEL", "-1003896219043"))
+    LOG_CHANNEL = int(getenv("LOG_CHANNEL", "-1003711233930"))
+    MAIN_CHANNEL = int(getenv("MAIN_CHANNEL", "-1003821772425"))
+    FILE_STORE = int(getenv("FILE_STORE", "-1003257368933"))
+    ADMINS = list(map(int, getenv("ADMINS", "6123108288").split()))
 
     RSS_ITEMS = getenv("RSS_ITEMS", "").split()
     SEND_SCHEDULE = getenv("SEND_SCHEDULE", "True").lower() == "true"
@@ -38,11 +38,11 @@ class Var:
     FFCODE_HDRip = getenv("FFCODE_HDRip")
     QUALS = getenv("QUALS", "480 720 1080 HDRip").split()
 
-    DISABLE_CHANNEL_BUTTON = getenv("DISABLE_CHANNEL_BUTTON", None) == 'True'
+    DISABLE_CHANNEL_BUTTON = getenv("DISABLE_CHANNEL_BUTTON", False) == 'True'
     AS_DOC = getenv("AS_DOC", "True").lower() == "true"
     THUMB = getenv("THUMB")
-    START_PIC = getenv("START_PIC","https://ibb.co/5xjBCXKp")
-    FORCE_PIC = getenv("FORCE_PIC", "https://ibb.co/5xjBCXKp")
+    START_PIC = getenv("START_PIC","https://i.ibb.co/LDPMX7Fg/x.png")
+    FORCE_PIC = getenv("FORCE_PIC", "https://i.ibb.co/LDPMX7Fg/x.png")
 
 
 # ✅ Required variable validation (outside the class)
