@@ -15,7 +15,8 @@ class Var:
     DB_NAME = getenv("DB_NAME", "Auto-Anime")
     BAN_SUPPORT = getenv("BAN_SUPPORT", "https://t.me/Im_Sukuna02")
     FSUB_LINK_EXPIRY = int(getenv("FSUB_LINK_EXPIRY", "120"))
-    CHANNEL_ID = int(getenv("CHANNEL_ID", "-1003822482934"))
+    val = getenv("CHANNEL_ID")
+    Var.CHANNEL_ID = int(val) if val and val.strip() else -1003822482934
     MHCHANNEL_URL = getenv("MHCHANNEL_URL", "https://t.me/+YVvk6nUKVYcwYzBl")
     ANIME = getenv("ANIME", "Is It Wr2131ong to Try to Pi123ck Up Girls in a Dungeon?")
     CUSTOM_BANNER = getenv("CUSTOM_BANNER", "https://i.ibb.co/LDPMX7Fg/x.png")
