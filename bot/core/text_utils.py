@@ -168,8 +168,19 @@ class AniLister:
             self.__vars = {'search': self.__ani_name}
 
     async def post_data(self):
-        async with ClientSession() as sess:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        }
+        async with ClientSession(headers=headers) as sess:
             async with sess.post(self.__api, json={'query': ANIME_GRAPHQL_QUERY, 'variables': self.__vars}) as resp:
+                if resp.status == 403:
+                    try:
+                        resp_json = await resp.json()
+                    except:
+                        resp_json = {}
+                    return (resp.status, resp_json, resp.headers)
                 return (resp.status, await resp.json(), resp.headers)
 
     async def get_anidata(self):
