@@ -34,8 +34,7 @@ from bot.core.func_utils import (
 LOGGER = logging.getLogger(__name__)
 
 # MongoDB setup
-DB_URI = ""
-mongo_client = AsyncIOMotorClient(DB_URI)
+mongo_client = AsyncIOMotorClient(Var.DB_URI)
 db = mongo_client['AutoAniOngoing']
 
 
